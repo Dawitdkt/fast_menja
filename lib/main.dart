@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'core/navigation/app_router.dart';
 import 'core/services/local_storage_service.dart';
 
@@ -43,15 +44,20 @@ class FastMenjaApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const primaryColor = Color(0xFF1C74E9);
+
     return MaterialApp.router(
       title: 'Fast Menja',
       theme: ThemeData(
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blue,
-        ),
+        colorScheme: ColorScheme.fromSeed(seedColor: primaryColor),
+        scaffoldBackgroundColor: const Color(0xFFF6F7F8),
+        textTheme: GoogleFonts.interTextTheme(),
         appBarTheme: const AppBarTheme(
-          elevation: 2,
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.white,
+          foregroundColor: Color(0xFF0F172A),
+          elevation: 0,
         ),
       ),
       routerConfig: goRouterProvider,

@@ -18,6 +18,9 @@ dependencies:
   # Navigation
   go_router: ^13.0.0
 
+  # Typography
+  google_fonts: ^6.2.1
+
   # Markdown Rendering
   flutter_markdown: ^0.6.0
   markdown: ^7.0.0

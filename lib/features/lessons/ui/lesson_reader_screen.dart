@@ -3,7 +3,7 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fast_menja/core/providers/app_providers.dart';
 
-class LessonReaderScreen extends ConsumerWidget {
+class LessonReaderScreen extends ConsumerStatefulWidget {
   final String slug;
 
   const LessonReaderScreen({
@@ -12,10 +12,64 @@ class LessonReaderScreen extends ConsumerWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final markdownAsync = ref.watch(lessonBySlugProvider(slug));
+  ConsumerState<LessonReaderScreen> createState() => _LessonReaderScreenState();
+}
+
+class _LessonReaderScreenState extends ConsumerState<LessonReaderScreen> {
+  final ScrollController _controller = ScrollController();
+  bool _completionTriggered = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_handleScroll);
+  }
+
+  @override
+  void dispose() {
+    _controller.removeListener(_handleScroll);
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _handleScroll() {
+    if (!_controller.hasClients) return;
+    final position = _controller.position;
+    final maxExtent = position.maxScrollExtent;
+
+    if (maxExtent <= 0) {
+      _markCompleteIfNeeded();
+      return;
+    }
+
+    final progress = (position.pixels / maxExtent).clamp(0.0, 1.0);
+    if (progress >= 0.95) {
+      _markCompleteIfNeeded();
+    }
+  }
+
+  void _markCompleteIfNeeded() {
+    if (_completionTriggered) return;
+
+    final current = ref.read(lessonProgressProvider)[widget.slug];
+    if (current?.completed == true) {
+      _completionTriggered = true;
+      return;
+    }
+
+    _completionTriggered = true;
+    ref.read(lessonProgressProvider.notifier).markLessonComplete(widget.slug);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final markdownAsync = ref.watch(lessonBySlugProvider(widget.slug));
     final progress = ref.watch(lessonProgressProvider);
-    final lessonProgress = progress[slug];
+    final lessonProgress = progress[widget.slug];
+
+    if ((lessonProgress?.completed ?? false) && !_completionTriggered) {
+      _completionTriggered = true;
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -31,13 +85,14 @@ class LessonReaderScreen extends ConsumerWidget {
               final isBookmarked = lessonProgress?.bookmarked ?? false;
               ref
                   .read(lessonProgressProvider.notifier)
-                  .toggleBookmark(slug, !isBookmarked);
+                  .toggleBookmark(widget.slug, !isBookmarked);
             },
           ),
         ],
       ),
       body: markdownAsync.when(
         data: (markdown) => SingleChildScrollView(
+          controller: _controller,
           padding: const EdgeInsets.all(16),
           child: MarkdownBody(
             data: markdown,
@@ -79,20 +134,6 @@ class LessonReaderScreen extends ConsumerWidget {
           child: Text('Error loading lesson: $error'),
         ),
       ),
-      floatingActionButton: !(lessonProgress?.completed ?? false)
-          ? FloatingActionButton.extended(
-              onPressed: () {
-                ref
-                    .read(lessonProgressProvider.notifier)
-                    .markLessonComplete(slug);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Lesson marked as complete!')),
-                );
-              },
-              label: const Text('Mark Complete'),
-              icon: const Icon(Icons.check),
-            )
-          : null,
     );
   }
 }
