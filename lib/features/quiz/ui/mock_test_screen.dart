@@ -57,7 +57,7 @@ class _MockTestScreenState extends ConsumerState<MockTestScreen> {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final session = ref.watch(quizSessionProvider);
 
     if (session == null) {
@@ -81,7 +81,8 @@ class _MockTestScreenState extends ConsumerState<MockTestScreen> {
               padding: const EdgeInsets.all(16),
               child: Text(
                 '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
           ),

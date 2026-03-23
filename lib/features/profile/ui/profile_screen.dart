@@ -20,8 +20,9 @@ class ProfileScreen extends ConsumerWidget {
           if (currentUser != null)
             IconButton(
               icon: const Icon(Icons.logout),
-              onPressed: () {
-                // Sign out logic
+              onPressed: () async {
+                await ref.read(authServiceProvider).signOut();
+                if (context.mounted) Navigator.of(context).pop();
               },
             ),
         ],

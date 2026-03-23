@@ -1,100 +1,51 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final SupabaseClient _client = Supabase.instance.client;
 
-  Stream<User?> get authStateChanges => _auth.authStateChanges();
+  Stream<AuthState> get authState => _client.auth.onAuthStateChange;
 
-  User? get currentUser => _auth.currentUser;
+  Stream<User?> get authStateChanges =>
+      _client.auth.onAuthStateChange.map((event) => event.session?.user);
 
-  bool get isSignedIn => _auth.currentUser != null;
+  User? get currentUser => _client.auth.currentUser;
 
-  bool get isAnonymous => _auth.currentUser?.isAnonymous ?? false;
+  bool get isSignedIn => _client.auth.currentUser != null;
 
   /// Sign in with email and password
-  Future<UserCredential> signInWithEmail(String email, String password) async {
-    return await _auth.signInWithEmailAndPassword(
+  Future<User?> signInWithEmail(String email, String password) async {
+    final response = await _client.auth.signInWithPassword(
       email: email,
       password: password,
     );
+    return response.user;
   }
 
   /// Create account with email and password
-  Future<UserCredential> createAccountWithEmail(
+  Future<User?> createAccountWithEmail(
     String email,
     String password,
   ) async {
-    return await _auth.createUserWithEmailAndPassword(
+    final response = await _client.auth.signUp(
       email: email,
       password: password,
     );
-  }
-
-  /// Sign in with Google
-  Future<UserCredential> signInWithGoogle() async {
-    final googleUser = await _googleSignIn.signIn();
-    if (googleUser == null) {
-      throw Exception('Google sign-in cancelled');
-    }
-
-    final googleAuth = await googleUser.authentication;
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
-
-    return await _auth.signInWithCredential(credential);
-  }
-
-  /// Sign in with Apple (iOS only)
-  Future<UserCredential> signInWithApple() async {
-    final credential = await SignInWithApple.getAppleIDCredential(
-      scopes: [
-        AppleIDAuthorizationScopes.email,
-        AppleIDAuthorizationScopes.fullName,
-      ],
-    );
-
-    final oauthCredential = OAuthProvider('apple.com').credential(
-      idToken: credential.identityToken,
-      accessToken: credential.authorizationCode,
-    );
-
-    return _auth.signInWithCredential(oauthCredential);
-  }
-
-  /// Sign in anonymously (guest mode)
-  Future<UserCredential> signInAnonymously() async {
-    return await _auth.signInAnonymously();
+    return response.user;
   }
 
   /// Sign out
   Future<void> signOut() async {
-    await Future.wait([
-      _auth.signOut(),
-      _googleSignIn.signOut(),
-    ]);
-  }
-
-  /// Update user profile
-  Future<void> updateProfile({
-    String? displayName,
-    String? photoURL,
-  }) async {
-    await _auth.currentUser?.updateDisplayName(displayName);
-    await _auth.currentUser?.updatePhotoURL(photoURL);
+    await _client.auth.signOut();
   }
 
   /// Send password reset email
   Future<void> sendPasswordResetEmail(String email) async {
-    await _auth.sendPasswordResetEmail(email: email);
+    await _client.auth.resetPasswordForEmail(email);
   }
 
-  /// Get ID token for making authenticated requests
+  /// Get access token for authenticated requests
   Future<String> getIdToken() async {
-    return await _auth.currentUser?.getIdToken() ?? '';
+    final session = _client.auth.currentSession;
+    return session?.accessToken ?? '';
   }
 }

@@ -1,7 +1,5 @@
 import 'package:hive/hive.dart';
 
-part 'question_model.g.dart';
-
 @HiveType(typeId: 2)
 class Question extends HiveObject {
   @HiveField(0)
@@ -100,9 +98,7 @@ class QuizSession extends HiveObject {
   int get score {
     if (!isCompleted) return 0;
     // This would need questions to calculate properly
-    return userAnswers
-        .where((answer) => answer != null)
-        .length;
+    return userAnswers.where((answer) => answer != null).length;
   }
 
   QuizSession copyWith({

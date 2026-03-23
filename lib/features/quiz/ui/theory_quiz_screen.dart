@@ -21,7 +21,7 @@ class _TheoryQuizScreenState extends ConsumerState<TheoryQuizScreen> {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final session = ref.watch(quizSessionProvider);
 
     if (session == null) {
@@ -33,7 +33,8 @@ class _TheoryQuizScreenState extends ConsumerState<TheoryQuizScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Question ${session.currentIndex + 1}/${session.questionIds.length}'),
+        title: Text(
+            'Question ${session.currentIndex + 1}/${session.questionIds.length}'),
       ),
       body: _buildQuizContent(context, ref, session),
     );
@@ -166,9 +167,7 @@ class _TheoryQuizScreenState extends ConsumerState<TheoryQuizScreen> {
                 ElevatedButton.icon(
                   onPressed: selectedAnswer != null
                       ? () {
-                          ref
-                              .read(quizSessionProvider.notifier)
-                              .nextQuestion();
+                          ref.read(quizSessionProvider.notifier).nextQuestion();
                         }
                       : null,
                   icon: const Icon(Icons.arrow_forward),

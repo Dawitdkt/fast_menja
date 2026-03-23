@@ -1,15 +1,68 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fast_menja/core/services/auth_service.dart';
+import 'package:fast_menja/core/providers/app_providers.dart';
 
-class LoginScreen extends ConsumerWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends ConsumerState<LoginScreen> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _isLoading = false;
+  bool _isSignUp = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+    if (email.isEmpty || password.isEmpty) {
+      _showError('Email and password are required');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    final authService = ref.read(authServiceProvider);
+    final supabaseService = ref.read(supabaseServiceProvider);
+
+    try {
+      final user = _isSignUp
+          ? await authService.createAccountWithEmail(email, password)
+          : await authService.signInWithEmail(email, password);
+
+      if (user != null) {
+        await supabaseService.createUserProfile(
+            user.id, user.email, user.userMetadata?['full_name'] as String?);
+      }
+
+      if (mounted) Navigator.of(context).pop();
+    } catch (e) {
+      _showError('Auth error: $e');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sign In'),
+        title: Text(_isSignUp ? 'Create Account' : 'Sign In'),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -29,72 +82,45 @@ class LoginScreen extends ConsumerWidget {
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 16, color: Colors.grey),
             ),
-            const SizedBox(height: 48),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.mail),
-              label: const Text('Sign in with Email'),
-              onPressed: () {
-                // Navigate to email sign in
-              },
+            const SizedBox(height: 32),
+            TextField(
+              controller: _emailController,
+              keyboardType: TextInputType.emailAddress,
+              decoration: const InputDecoration(
+                labelText: 'Email',
+                prefixIcon: Icon(Icons.mail),
+              ),
             ),
             const SizedBox(height: 12),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.g_mobiledata),
-              label: const Text('Sign in with Google'),
-              onPressed: () async {
-                final authService = AuthService();
-                try {
-                  await authService.signInWithGoogle();
-                  if (context.mounted) {
-                    Navigator.of(context).pop();
-                  }
-                } catch (e) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error: $e')),
-                    );
-                  }
-                }
-              },
-            ),
-            const SizedBox(height: 12),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.apple),
-              label: const Text('Sign in with Apple'),
-              onPressed: () async {
-                final authService = AuthService();
-                try {
-                  await authService.signInWithApple();
-                  if (context.mounted) {
-                    Navigator.of(context).pop();
-                  }
-                } catch (e) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error: $e')),
-                    );
-                  }
-                }
-              },
+            TextField(
+              controller: _passwordController,
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'Password',
+                prefixIcon: Icon(Icons.lock),
+              ),
             ),
             const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _isLoading ? null : _submit,
+              child: _isLoading
+                  ? const SizedBox(
+                      height: 18,
+                      width: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Text(_isSignUp ? 'Create Account' : 'Sign In'),
+            ),
+            const SizedBox(height: 12),
             TextButton(
-              onPressed: () async {
-                final authService = AuthService();
-                try {
-                  await authService.signInAnonymously();
-                  if (context.mounted) {
-                    Navigator.of(context).pop();
-                  }
-                } catch (e) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error: $e')),
-                    );
-                  }
-                }
-              },
-              child: const Text('Continue as Guest'),
+              onPressed: _isLoading
+                  ? null
+                  : () => setState(() => _isSignUp = !_isSignUp),
+              child: Text(
+                _isSignUp
+                    ? 'Already have an account? Sign in'
+                    : 'Need an account? Sign up',
+              ),
             ),
           ],
         ),

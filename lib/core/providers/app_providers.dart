@@ -1,13 +1,13 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fast_menja/core/services/auth_service.dart';
-import 'package:fast_menja/core/services/firestore_service.dart';
+import 'package:fast_menja/core/services/supabase_service.dart';
 import 'package:fast_menja/core/services/local_storage_service.dart';
 import 'package:fast_menja/features/lessons/data/lesson_repository.dart';
 import 'package:fast_menja/features/lessons/domain/lesson_model.dart';
 import 'package:fast_menja/features/quiz/data/quiz_repository.dart';
 import 'package:fast_menja/features/quiz/domain/question_model.dart';
 import 'package:fast_menja/core/models/user_model.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 
 // ===== Service Providers =====
 
@@ -15,7 +15,7 @@ final authServiceProvider = Provider((ref) => AuthService());
 
 final localStorageServiceProvider = Provider((ref) => LocalStorageService());
 
-final firestoreServiceProvider = Provider((ref) => FirestoreService());
+final supabaseServiceProvider = Provider((ref) => SupabaseService());
 
 final lessonRepositoryProvider = Provider((ref) {
   final storage = ref.watch(localStorageServiceProvider);
@@ -29,24 +29,24 @@ final quizRepositoryProvider = Provider((ref) {
 
 // ===== Auth State =====
 
-final authStateProvider = StreamProvider<User?>((ref) {
+final authStateProvider = StreamProvider<supabase.User?>((ref) {
   final authService = ref.watch(authServiceProvider);
   return authService.authStateChanges;
 });
 
-final currentUserProvider = Provider<User?>((ref) {
+final currentUserProvider = Provider<supabase.User?>((ref) {
   final user = ref.watch(authStateProvider).value;
   return user;
 });
 
 final isSignedInProvider = Provider<bool>((ref) {
   final user = ref.watch(currentUserProvider);
-  return user != null && !user.isAnonymous;
+  return user != null;
 });
 
 final isGuestProvider = Provider<bool>((ref) {
   final user = ref.watch(currentUserProvider);
-  return user != null && user.isAnonymous;
+  return user == null;
 });
 
 // ===== User Profile =====
@@ -55,8 +55,8 @@ final userProfileProvider = FutureProvider<UserProfile?>((ref) async {
   final user = ref.watch(currentUserProvider);
   if (user == null) return null;
 
-  final firestore = ref.watch(firestoreServiceProvider);
-  return firestore.getUserProfile(user.uid);
+  final supabaseService = ref.watch(supabaseServiceProvider);
+  return supabaseService.getUserProfile(user.id);
 });
 
 // ===== Lesson Data =====
@@ -66,7 +66,8 @@ final lessonIndexProvider = FutureProvider<List<LessonMeta>>((ref) async {
   return repository.loadLessonIndex();
 });
 
-final lessonBySlugProvider = FutureProvider.family<String, String>((ref, slug) async {
+final lessonBySlugProvider =
+    FutureProvider.family<String, String>((ref, slug) async {
   final repository = ref.watch(lessonRepositoryProvider);
   return repository.loadMarkdown(slug);
 });
@@ -98,10 +99,10 @@ class LessonProgressNotifier extends Notifier<Map<String, LessonProgress>> {
     await storage.saveLessonProgress(progress);
     state = {...state, slug: progress};
 
-    // Sync to Firestore if signed in
-    if (user != null && !user.isAnonymous) {
-      final firestore = ref.watch(firestoreServiceProvider);
-      await firestore.markLessonComplete(user.uid, slug);
+    // Sync to Supabase if signed in
+    if (user != null) {
+      final supabaseService = ref.watch(supabaseServiceProvider);
+      await supabaseService.markLessonComplete(user.id, slug);
     }
   }
 
@@ -120,10 +121,10 @@ class LessonProgressNotifier extends Notifier<Map<String, LessonProgress>> {
     await storage.saveLessonProgress(progress);
     state = {...state, slug: progress};
 
-    // Sync to Firestore if signed in
-    if (user != null && !user.isAnonymous) {
-      final firestore = ref.watch(firestoreServiceProvider);
-      await firestore.bookmarkLesson(user.uid, slug, bookmarked);
+    // Sync to Supabase if signed in
+    if (user != null) {
+      final supabaseService = ref.watch(supabaseServiceProvider);
+      await supabaseService.bookmarkLesson(user.id, slug, bookmarked);
     }
   }
 
@@ -138,8 +139,7 @@ class LessonProgressNotifier extends Notifier<Map<String, LessonProgress>> {
 
 // ===== Quiz Data =====
 
-final quizSessionProvider =
-    NotifierProvider<QuizSessionNotifier, QuizSession?>(
+final quizSessionProvider = NotifierProvider<QuizSessionNotifier, QuizSession?>(
   QuizSessionNotifier.new,
 );
 
@@ -195,7 +195,7 @@ class QuizSessionNotifier extends Notifier<QuizSession?> {
 
     final repo = ref.watch(quizRepositoryProvider);
     final questions = state!.questionIds
-        .map((id) => repo._storage.getQuestion(id))
+        .map((id) => repo.getQuestion(id))
         .whereType<Question>()
         .toList();
 
@@ -209,7 +209,8 @@ class QuizSessionNotifier extends Notifier<QuizSession?> {
   }
 }
 
-final questionProvider = FutureProvider.family<Question?, String>((ref, questionId) async {
+final questionProvider =
+    FutureProvider.family<Question?, String>((ref, questionId) async {
   final repository = ref.watch(quizRepositoryProvider);
   return repository.getQuestion(questionId);
 });
@@ -219,7 +220,8 @@ final weakQuestionsProvider = FutureProvider<List<Question>>((ref) async {
   return repository.getWeakQuestionsForReview();
 });
 
-final mockTestResultsProvider = FutureProvider<List<MockTestResult>>((ref) async {
+final mockTestResultsProvider =
+    FutureProvider<List<MockTestResult>>((ref) async {
   final repository = ref.watch(quizRepositoryProvider);
   return repository.getMockTestResults();
 });

@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:fast_menja/features/lessons/domain/lesson_model.dart';
-import 'local_storage_service.dart';
+import 'package:fast_menja/core/services/local_storage_service.dart';
 
 class LessonRepository {
   final LocalStorageService _storage;
@@ -11,7 +11,8 @@ class LessonRepository {
   /// Load all lessons metadata from assets
   Future<List<LessonMeta>> loadLessonIndex() async {
     try {
-      final jsonString = await rootBundle.loadString('assets/lessons_index.json');
+      final jsonString =
+          await rootBundle.loadString('assets/lessons_index.json');
       final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
       final lessons = (jsonData['lessons'] as List)
           .map((l) => LessonMeta.fromJson(l as Map<String, dynamic>))

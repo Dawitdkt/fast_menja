@@ -27,20 +27,11 @@ dependencies:
   hive: ^2.2.0
   flutter_secure_storage: ^9.0.0
 
-  # Firebase
-  firebase_core: ^2.24.0
-  firebase_auth: ^4.15.0
-  cloud_firestore: ^4.13.0
-  firebase_storage: ^11.5.0
-  firebase_messaging: ^14.6.0
-  firebase_remote_config: ^4.3.0
-
-  # Authentication
-  google_sign_in: ^6.1.0
-  sign_in_with_apple: ^6.1.0
+  # Supabase
+  supabase_flutter: ^2.5.6
 
   # Billing
-  purchases_flutter: ^6.34.0
+  purchases_flutter: ^8.11.0
 
   # Video
   video_player: ^2.8.0
@@ -71,10 +62,3 @@ flutter:
     - assets/questions.json
     - assets/lessons_index.json
     - .env
-
-  fonts:
-    - family: Roboto
-      fonts:
-        - asset: assets/fonts/Roboto-Regular.ttf
-        - asset: assets/fonts/Roboto-Bold.ttf
-          weight: 700

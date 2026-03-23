@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fast_menja/features/lessons/domain/lesson_model.dart';
 import 'package:fast_menja/core/providers/app_providers.dart';
+import 'package:go_router/go_router.dart';
 
 class LessonListScreen extends ConsumerWidget {
   const LessonListScreen({Key? key}) : super(key: key);
@@ -83,9 +84,7 @@ class LessonListScreen extends ConsumerWidget {
                   },
                 ),
                 onTap: () {
-                  Navigator.of(context).pushNamed(
-                    '/lessons/${lesson.slug}',
-                  );
+                  context.go('/lessons/${lesson.slug}');
                 },
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,

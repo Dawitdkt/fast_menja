@@ -1,9 +1,14 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:fast_menja/features/lessons/domain/lesson_model.dart';
 import 'package:fast_menja/features/quiz/domain/question_model.dart';
 
 class LocalStorageService {
+  LocalStorageService._internal();
+  static final LocalStorageService _instance = LocalStorageService._internal();
+  factory LocalStorageService() => _instance;
+
   static const String _progressBoxName = 'lesson_progress';
   static const String _questionsBoxName = 'questions';
   static const String _weakQuestionsBoxName = 'weak_questions';
@@ -14,21 +19,35 @@ class LocalStorageService {
   late Box<WeakQuestion> _weakQuestionsBox;
   late Box<MockTestResult> _mockTestsBox;
 
+  bool _initialized = false;
+
   /// Initialize Hive and open boxes
   Future<void> init() async {
+    if (_initialized) return;
+
     await Hive.initFlutter();
 
     // Register adapters
-    Hive.registerAdapter(LessonProgressAdapter());
-    Hive.registerAdapter(QuestionAdapter());
-    Hive.registerAdapter(WeakQuestionAdapter());
-    Hive.registerAdapter(MockTestResultAdapter());
+    if (!Hive.isAdapterRegistered(1)) {
+      Hive.registerAdapter(LessonProgressAdapter());
+    }
+    if (!Hive.isAdapterRegistered(2)) {
+      Hive.registerAdapter(QuestionAdapter());
+    }
+    if (!Hive.isAdapterRegistered(4)) {
+      Hive.registerAdapter(WeakQuestionAdapter());
+    }
+    if (!Hive.isAdapterRegistered(5)) {
+      Hive.registerAdapter(MockTestResultAdapter());
+    }
 
     // Open boxes
     _progressBox = await Hive.openBox<LessonProgress>(_progressBoxName);
     _questionsBox = await Hive.openBox<Question>(_questionsBoxName);
     _weakQuestionsBox = await Hive.openBox<WeakQuestion>(_weakQuestionsBoxName);
     _mockTestsBox = await Hive.openBox<MockTestResult>(_mockTestsBoxName);
+
+    _initialized = true;
   }
 
   /// Close all boxes
@@ -140,7 +159,8 @@ class LocalStorageService {
   List<WeakQuestion> getWeakQuestionsDue() {
     final now = DateTime.now();
     return _weakQuestionsBox.values
-        .where((wq) => wq.nextDueAt.isBefore(now) || wq.nextDueAt.isAtSameMomentAs(now))
+        .where((wq) =>
+            wq.nextDueAt.isBefore(now) || wq.nextDueAt.isAtSameMomentAs(now))
         .toList();
   }
 
@@ -222,7 +242,7 @@ class QuestionAdapter extends TypeAdapter<Question> {
     return Question(
       id: reader.read(),
       text: reader.read(),
-      options: reader.read<List>().cast<String>(),
+      options: (reader.read() as List).cast<String>(),
       correctIndex: reader.read(),
       explanation: reader.read(),
       category: reader.read(),

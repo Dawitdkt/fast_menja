@@ -1,7 +1,5 @@
 import 'package:hive/hive.dart';
 
-part 'lesson_model.g.dart';
-
 @HiveType(typeId: 0)
 class LessonMeta extends HiveObject {
   @HiveField(0)
