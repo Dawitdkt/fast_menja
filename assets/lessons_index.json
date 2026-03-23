@@ -1,0 +1,28 @@
+{
+  "lessons": [
+    {
+      "slug": "road-signs-warning",
+      "title": "Warning signs",
+      "category": "Road signs",
+      "order": 1,
+      "readingTimeMinutes": 5,
+      "tags": ["signs", "hazards", "triangles"]
+    },
+    {
+      "slug": "road-signs-info",
+      "title": "Information signs",
+      "category": "Road signs",
+      "order": 2,
+      "readingTimeMinutes": 4,
+      "tags": ["signs", "information", "blue", "rectangular"]
+    },
+    {
+      "slug": "motorway-rules",
+      "title": "Motorway rules and procedures",
+      "category": "Motorway driving",
+      "order": 3,
+      "readingTimeMinutes": 8,
+      "tags": ["motorway", "safety", "speed", "lanes"]
+    }
+  ]
+}

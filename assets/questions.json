@@ -1,0 +1,144 @@
+{
+  "questions": [
+    {
+      "id": "q001",
+      "text": "What shape are warning signs on UK roads?",
+      "options": [
+        "Circular",
+        "Triangular",
+        "Square",
+        "Octagonal"
+      ],
+      "correctIndex": 1,
+      "explanation": "Warning signs are triangular with a red border and yellow background to alert drivers of potential hazards.",
+      "category": "Road signs",
+      "imageAsset": null
+    },
+    {
+      "id": "q002",
+      "text": "What colour background do information signs have?",
+      "options": [
+        "Red",
+        "Yellow",
+        "Blue",
+        "Green"
+      ],
+      "correctIndex": 2,
+      "explanation": "Information signs have a blue background and are rectangular, providing directions and information about services.",
+      "category": "Road signs",
+      "imageAsset": null
+    },
+    {
+      "id": "q003",
+      "text": "What is the national speed limit for cars on a motorway in the UK?",
+      "options": [
+        "50 mph",
+        "60 mph",
+        "70 mph",
+        "80 mph"
+      ],
+      "correctIndex": 2,
+      "explanation": "The maximum speed limit for cars on motorways is 70 mph (112 km/h), though you must drive at a safe speed for conditions.",
+      "category": "Motorway driving",
+      "imageAsset": null
+    },
+    {
+      "id": "q004",
+      "text": "Which lane should you primarily use on a motorway?",
+      "options": [
+        "The right lane",
+        "The middle lane",
+        "The left lane",
+        "Any lane equally"
+      ],
+      "correctIndex": 2,
+      "explanation": "You should keep to the left lane and only use the middle and right lanes for overtaking.",
+      "category": "Motorway driving",
+      "imageAsset": null
+    },
+    {
+      "id": "q005",
+      "text": "Can learner drivers use motorways?",
+      "options": [
+        "Yes, with an instructor",
+        "Yes, at reduced speed limits",
+        "No, they must hold a full license",
+        "Only on designated learner motorways"
+      ],
+      "correctIndex": 2,
+      "explanation": "Only drivers who hold a full, valid driving license can use motorways. Learners must not drive on motorways.",
+      "category": "Motorway driving",
+      "imageAsset": null
+    },
+    {
+      "id": "q006",
+      "text": "What should you do if you see a warning sign for children crossing?",
+      "options": [
+        "Maintain your speed",
+        "Slow down and be prepared to stop",
+        "Increase your speed to cross quickly",
+        "Sound your horn"
+      ],
+      "correctIndex": 1,
+      "explanation": "When you see a warning sign for children crossing, you must slow down and be prepared to stop, as children may suddenly cross the road.",
+      "category": "Road signs",
+      "imageAsset": null
+    },
+    {
+      "id": "q007",
+      "text": "What does the knife and fork symbol on a blue sign indicate?",
+      "options": [
+        "A police station",
+        "A restaurant or food service",
+        "A rest area",
+        "A hospital"
+      ],
+      "correctIndex": 1,
+      "explanation": "The knife and fork symbol on an information (blue) sign indicates a restaurant or food service ahead.",
+      "category": "Road signs",
+      "imageAsset": null
+    },
+    {
+      "id": "q008",
+      "text": "When overtaking on a motorway, which lane should you move to?",
+      "options": [
+        "Any lane to the right",
+        "Only the right-hand lane",
+        "The nearside lane only",
+        "The middle lane only"
+      ],
+      "correctIndex": 0,
+      "explanation": "You can move to any lane to the right for overtaking, but you must return to the left lane once you've completed the manoeuvre.",
+      "category": "Motorway driving",
+      "imageAsset": null
+    },
+    {
+      "id": "q009",
+      "text": "What is the speed limit for HGVs on UK motorways?",
+      "options": [
+        "50 mph",
+        "60 mph",
+        "70 mph",
+        "Unlimited"
+      ],
+      "correctIndex": 1,
+      "explanation": "Heavy goods vehicles (HGVs) have a maximum speed limit of 60 mph on motorways, lower than cars.",
+      "category": "Motorway driving",
+      "imageAsset": null
+    },
+    {
+      "id": "q010",
+      "text": "Can you stop on a motorway hard shoulder for a rest break?",
+      "options": [
+        "Yes, whenever you feel tired",
+        "Only for emergencies",
+        "Yes, for 30 minutes",
+        "No, never without a valid reason"
+      ],
+      "correctIndex": 1,
+      "explanation": "The hard shoulder is for emergency use only. If you feel fatigued, you should exit at the next service station.",
+      "category": "Motorway driving",
+      "imageAsset": null
+    }
+  ]
+}
