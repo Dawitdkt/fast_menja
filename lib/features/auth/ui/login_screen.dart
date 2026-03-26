@@ -35,13 +35,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final supabaseService = ref.read(supabaseServiceProvider);
 
     try {
-      final user = _isSignUp
+      final response = _isSignUp
           ? await authService.createAccountWithEmail(email, password)
           : await authService.signInWithEmail(email, password);
 
+      final user = response.user;
       if (user != null) {
         await supabaseService.createUserProfile(
-            user.id, user.email, user.userMetadata?['full_name'] as String?);
+          user.id,
+          user.email,
+          user.userMetadata?['display_name'] as String?,
+        );
       }
 
       if (mounted) Navigator.of(context).pop();

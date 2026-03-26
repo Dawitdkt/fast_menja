@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:fast_menja/core/providers/app_providers.dart';
 import 'package:fast_menja/features/lessons/ui/lesson_list_screen.dart';
 import 'package:fast_menja/features/lessons/ui/lesson_reader_screen.dart';
 import 'package:fast_menja/features/quiz/ui/theory_quiz_screen.dart';
@@ -9,9 +11,26 @@ import 'package:fast_menja/features/auth/ui/login_screen.dart';
 import 'package:fast_menja/features/profile/ui/profile_screen.dart';
 import 'package:fast_menja/features/dashboard/ui/dashboard_screen.dart';
 
-final goRouterProvider = GoRouter(
-  initialLocation: '/',
-  routes: [
+final goRouterProvider = Provider<GoRouter>((ref) {
+  final isSignedIn = ref.watch(isSignedInProvider);
+
+  return GoRouter(
+    initialLocation: '/',
+    redirect: (context, state) {
+      final isLoginRoute = state.uri.path == '/login';
+      final isProfileRoute = state.uri.path == '/profile';
+
+      if (!isSignedIn && isProfileRoute) {
+        return '/login';
+      }
+
+      if (isSignedIn && isLoginRoute) {
+        return '/';
+      }
+
+      return null;
+    },
+    routes: [
     // Home / Dashboard
     GoRoute(
       path: '/',
@@ -62,8 +81,9 @@ final goRouterProvider = GoRouter(
       path: '/login',
       builder: (context, state) => const LoginScreen(),
     ),
-  ],
-);
+    ],
+  );
+});
 
 // Road Signs Quiz placeholder
 class RoadSignsQuizScreen extends StatelessWidget {

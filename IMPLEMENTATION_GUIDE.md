@@ -5,9 +5,9 @@ A Flutter-based mobile application for UK learner drivers, covering four core st
 ## Project Overview
 
 **Platform:** iOS + Android (Flutter)  
-**Status:** v1.0 - Production Ready  
+**Status:** v1.0 - Supabase Migration In Progress  
 **Architecture:** Clean Architecture + Riverpod + Repository Pattern  
-**Database:** Firebase Firestore + Hive (offline-first)  
+**Database:** Supabase Postgres + Hive (offline-first)  
 **Monetization:** RevenueCat (Freemium model)  
 
 ## Quick Start
@@ -16,7 +16,7 @@ A Flutter-based mobile application for UK learner drivers, covering four core st
 
 - Flutter 3.0+ SDK
 - Dart 3.0+
-- Firebase CLI
+- Supabase CLI
 - Xcode 14+ (for iOS)
 - Android Studio (for Android)
 
@@ -28,16 +28,15 @@ cd fast_menja
 flutter pub get
 ```
 
-2. **Configure Firebase**
-   - Create a Firebase project at [firebase.google.com](https://firebase.google.com)
-   - Download `google-services.json` (Android) and `GoogleService-Info.plist` (iOS)
-   - Place files in the appropriate platform directories
-   - Update `lib/firebase_options.dart` with your credentials
+2. **Configure Supabase**
+   - Create a Supabase project at [supabase.com](https://supabase.com)
+   - Add `SUPABASE_URL` and `SUPABASE_ANON_KEY` to `.env`
+   - Apply SQL migrations from `supabase/migrations/`
 
 3. **Configure RevenueCat**
    - Sign up at [revenuecat.com](https://revenuecat.com)
    - Get your API key
-   - Add to `firebase_options.dart` or `.env` file
+   - Add to `.env` file
 
 4. **Generate code**
 ```bash
@@ -249,16 +248,16 @@ flutter build ios --release
 open ios/Runner.xcworkspace
 ```
 
-### Firebase Deployment
+### Supabase Deployment
 ```bash
-# Deploy Firestore rules
-firebase deploy --only firestore:rules
+# Push database migrations
+supabase db push
 
-# Deploy Storage rules
-firebase deploy --only storage:rules
-
-# Deploy Cloud Functions
-firebase deploy --only functions
+# Deploy edge functions
+supabase functions deploy create-user-profile
+supabase functions deploy validate-premium
+supabase functions deploy send-daily-reminder
+supabase functions deploy aggregate-stats
 ```
 
 ## Testing
@@ -311,8 +310,7 @@ See `pubspec.yaml` for complete list. Key packages:
 - **flutter_riverpod** - State management
 - **go_router** - Navigation
 - **hive_flutter** - Local storage
-- **firebase_auth** - Authentication
-- **cloud_firestore** - Cloud database
+- **supabase_flutter** - Auth and cloud database
 - **flutter_markdown** - Content rendering
 - **purchases_flutter** - RevenueCat billing
 

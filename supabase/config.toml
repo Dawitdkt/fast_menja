@@ -1,0 +1,13 @@
+project_id = "fast_menja"
+
+[functions.create-user-profile]
+verify_jwt = true
+
+[functions.validate-premium]
+verify_jwt = false
+
+[functions.send-daily-reminder]
+verify_jwt = false
+
+[functions.aggregate-stats]
+verify_jwt = false

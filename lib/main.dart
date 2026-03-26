@@ -4,20 +4,19 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'core/navigation/app_router.dart';
+import 'core/providers/app_providers.dart';
 import 'core/services/local_storage_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Load environment variables
   await dotenv.load(fileName: '.env');
 
-  // Initialize Supabase
-  final supabaseUrl = dotenv.env['SUPABASE_URL'];
-  final supabaseAnonKey = dotenv.env['SUPABASE_ANON_KEY'];
+  final supabaseUrl = dotenv.env['SUPABASE_URL'] ?? '';
+  final supabaseAnonKey = dotenv.env['SUPABASE_ANON_KEY'] ?? '';
 
-  if (supabaseUrl == null || supabaseAnonKey == null) {
-    throw Exception('Missing SUPABASE_URL or SUPABASE_ANON_KEY in .env');
+  if (supabaseUrl.isEmpty || supabaseAnonKey.isEmpty) {
+    throw StateError('Missing SUPABASE_URL or SUPABASE_ANON_KEY in .env');
   }
 
   await Supabase.initialize(
@@ -25,11 +24,8 @@ void main() async {
     anonKey: supabaseAnonKey,
   );
 
-  // Initialize local storage
   final localStorage = LocalStorageService();
   await localStorage.init();
-
-  // Load questions from assets
   await localStorage.loadQuestionsFromAssets();
 
   runApp(
@@ -44,6 +40,17 @@ class FastMenjaApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return const _AppRoot();
+  }
+}
+
+class _AppRoot extends ConsumerWidget {
+  const _AppRoot();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(ensureUserProfileProvider);
+    final router = ref.watch(goRouterProvider);
     const primaryColor = Color(0xFF1C74E9);
 
     return MaterialApp.router(
@@ -60,7 +67,7 @@ class FastMenjaApp extends StatelessWidget {
           elevation: 0,
         ),
       ),
-      routerConfig: goRouterProvider,
+      routerConfig: router,
     );
   }
 }

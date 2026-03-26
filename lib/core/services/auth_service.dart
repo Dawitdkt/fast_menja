@@ -1,51 +1,104 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+class AppAuthUser {
+  final String uid;
+  final String? email;
+  final String? displayName;
+  final bool isAnonymous;
+
+  const AppAuthUser({
+    required this.uid,
+    this.email,
+    this.displayName,
+    required this.isAnonymous,
+  });
+
+  factory AppAuthUser.fromSupabase(User user) {
+    final provider = user.appMetadata['provider'] as String?;
+    final isAnonymous = provider == 'anonymous';
+
+    return AppAuthUser(
+      uid: user.id,
+      email: user.email,
+      displayName: user.userMetadata?['display_name'] as String?,
+      isAnonymous: isAnonymous,
+    );
+  }
+}
+
 class AuthService {
-  final SupabaseClient _client = Supabase.instance.client;
+  final GoTrueClient _auth = Supabase.instance.client.auth;
 
-  Stream<AuthState> get authState => _client.auth.onAuthStateChange;
+  Stream<AppAuthUser?> get authStateChanges async* {
+    yield currentUser;
+    yield* _auth.onAuthStateChange.map((event) {
+      final user = event.session?.user;
+      if (user == null) return null;
+      return AppAuthUser.fromSupabase(user);
+    });
+  }
 
-  Stream<User?> get authStateChanges =>
-      _client.auth.onAuthStateChange.map((event) => event.session?.user);
+  AppAuthUser? get currentUser {
+    final user = _auth.currentUser;
+    if (user == null) return null;
+    return AppAuthUser.fromSupabase(user);
+  }
 
-  User? get currentUser => _client.auth.currentUser;
+  bool get isSignedIn => currentUser != null;
+  bool get isAnonymous => currentUser?.isAnonymous ?? false;
 
-  bool get isSignedIn => _client.auth.currentUser != null;
-
-  /// Sign in with email and password
-  Future<User?> signInWithEmail(String email, String password) async {
-    final response = await _client.auth.signInWithPassword(
+  Future<AuthResponse> signInWithEmail(String email, String password) {
+    return _auth.signInWithPassword(
       email: email,
       password: password,
     );
-    return response.user;
   }
 
-  /// Create account with email and password
-  Future<User?> createAccountWithEmail(
-    String email,
-    String password,
-  ) async {
-    final response = await _client.auth.signUp(
+  Future<AuthResponse> createAccountWithEmail(String email, String password) {
+    return _auth.signUp(
       email: email,
       password: password,
     );
-    return response.user;
   }
 
-  /// Sign out
-  Future<void> signOut() async {
-    await _client.auth.signOut();
+  Future<void> signInWithGoogle() {
+    return _auth.signInWithOAuth(
+      OAuthProvider.google,
+      redirectTo: 'io.supabase.flutter://login-callback/',
+    );
   }
 
-  /// Send password reset email
-  Future<void> sendPasswordResetEmail(String email) async {
-    await _client.auth.resetPasswordForEmail(email);
+  Future<void> signInWithApple() {
+    return _auth.signInWithOAuth(
+      OAuthProvider.apple,
+      redirectTo: 'io.supabase.flutter://login-callback/',
+    );
   }
 
-  /// Get access token for authenticated requests
+  Future<AuthResponse> signInAnonymously() {
+    return _auth.signInAnonymously();
+  }
+
+  Future<void> signOut() {
+    return _auth.signOut();
+  }
+
+  Future<void> updateProfile({String? displayName, String? photoURL}) {
+    return _auth.updateUser(
+      UserAttributes(
+        data: {
+          if (displayName != null) 'display_name': displayName,
+          if (photoURL != null) 'avatar_url': photoURL,
+        },
+      ),
+    );
+  }
+
+  Future<void> sendPasswordResetEmail(String email) {
+    return _auth.resetPasswordForEmail(email);
+  }
+
   Future<String> getIdToken() async {
-    final session = _client.auth.currentSession;
-    return session?.accessToken ?? '';
+    return _auth.currentSession?.accessToken ?? '';
   }
 }

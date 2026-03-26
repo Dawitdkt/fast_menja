@@ -7,7 +7,6 @@ import 'package:fast_menja/features/lessons/domain/lesson_model.dart';
 import 'package:fast_menja/features/quiz/data/quiz_repository.dart';
 import 'package:fast_menja/features/quiz/domain/question_model.dart';
 import 'package:fast_menja/core/models/user_model.dart';
-import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 
 // ===== Service Providers =====
 
@@ -29,12 +28,12 @@ final quizRepositoryProvider = Provider((ref) {
 
 // ===== Auth State =====
 
-final authStateProvider = StreamProvider<supabase.User?>((ref) {
+final authStateProvider = StreamProvider<AppAuthUser?>((ref) {
   final authService = ref.watch(authServiceProvider);
   return authService.authStateChanges;
 });
 
-final currentUserProvider = Provider<supabase.User?>((ref) {
+final currentUserProvider = Provider<AppAuthUser?>((ref) {
   final user = ref.watch(authStateProvider).value;
   return user;
 });
@@ -55,8 +54,26 @@ final userProfileProvider = FutureProvider<UserProfile?>((ref) async {
   final user = ref.watch(currentUserProvider);
   if (user == null) return null;
 
-  final supabaseService = ref.watch(supabaseServiceProvider);
-  return supabaseService.getUserProfile(user.id);
+  final supabase = ref.watch(supabaseServiceProvider);
+  final profile = await supabase.getUserProfile(user.uid);
+
+  if (profile == null && !user.isAnonymous) {
+    await supabase.createUserProfile(user.uid, user.email, user.displayName);
+    return supabase.getUserProfile(user.uid);
+  }
+
+  return profile;
+});
+
+final ensureUserProfileProvider = FutureProvider<void>((ref) async {
+  final user = ref.watch(currentUserProvider);
+  if (user == null || user.isAnonymous) return;
+
+  final supabase = ref.watch(supabaseServiceProvider);
+  final profile = await supabase.getUserProfile(user.uid);
+  if (profile == null) {
+    await supabase.createUserProfile(user.uid, user.email, user.displayName);
+  }
 });
 
 // ===== Lesson Data =====
@@ -99,10 +116,9 @@ class LessonProgressNotifier extends Notifier<Map<String, LessonProgress>> {
     await storage.saveLessonProgress(progress);
     state = {...state, slug: progress};
 
-    // Sync to Supabase if signed in
-    if (user != null) {
-      final supabaseService = ref.watch(supabaseServiceProvider);
-      await supabaseService.markLessonComplete(user.id, slug);
+    if (user != null && !user.isAnonymous) {
+      final supabase = ref.watch(supabaseServiceProvider);
+      await supabase.markLessonComplete(user.uid, slug);
     }
   }
 
@@ -121,10 +137,9 @@ class LessonProgressNotifier extends Notifier<Map<String, LessonProgress>> {
     await storage.saveLessonProgress(progress);
     state = {...state, slug: progress};
 
-    // Sync to Supabase if signed in
-    if (user != null) {
-      final supabaseService = ref.watch(supabaseServiceProvider);
-      await supabaseService.bookmarkLesson(user.id, slug, bookmarked);
+    if (user != null && !user.isAnonymous) {
+      final supabase = ref.watch(supabaseServiceProvider);
+      await supabase.bookmarkLesson(user.uid, slug, bookmarked);
     }
   }
 

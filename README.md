@@ -1,6 +1,14 @@
 # Fast Menja - Driving Theory Test Mobile App
 
-A comprehensive Flutter application for UK learner drivers, featuring four study modes: theory questions, hazard perception, mock tests, and interactive lessons. Built with clean architecture principles, offline-first design, and Firebase integration.
+A comprehensive Flutter application for UK learner drivers, featuring four study modes: theory questions, hazard perception, mock tests, and interactive lessons. Built with clean architecture principles and offline-first design.
+
+## Migration Status
+
+This project is currently migrating from Firebase to Supabase.
+
+- Active app bootstrap/auth/data services are now Supabase-based.
+- Legacy Firebase docs and files may still exist during phased migration cleanup.
+- Use `SUPABASE_SETUP.md` for current backend setup instructions.
 
 ## ✨ What's Implemented
 
@@ -31,7 +39,7 @@ A comprehensive Flutter application for UK learner drivers, featuring four study
    - Google Sign-In
    - Apple Sign-In
    - Guest mode with seamless migration to accounts
-   - Anonymous auth via Firebase
+   - Anonymous auth via Supabase
 
 4. **Data Persistence**
    - Hive for local offline storage (lessons, questions, progress)
@@ -46,11 +54,11 @@ A comprehensive Flutter application for UK learner drivers, featuring four study
    - Premium entitlements and subscription management
 
 ### ✅ Services & Integrations
-- **Firebase Authentication** (Email, Google, Apple, Anonymous)
-- **Cloud Firestore** with offline persistence
-- **Firebase Cloud Functions** for server-side logic
-- **Firebase Remote Config** for feature gates and content updates
-- **Firebase Cloud Messaging** for push notifications
+- **Supabase Auth** (Email, Google, Apple, Anonymous)
+- **Supabase Postgres** with RLS policies
+- **Supabase Edge Functions** for server-side logic
+- **Supabase Storage** for media and assets
+- Push notifications via Supabase-compatible mobile push workflow
 - **RevenueCat** for subscription management
 
 ### ✅ Data Models
@@ -93,7 +101,7 @@ A comprehensive Flutter application for UK learner drivers, featuring four study
 
 ### Prerequisites
 - Flutter 3.0+ and Dart 3.0+
-- Firebase account
+- Supabase account
 - RevenueCat account (for payments)
 
 ### Setup Steps
@@ -105,14 +113,14 @@ A comprehensive Flutter application for UK learner drivers, featuring four study
    flutter pub run build_runner build
    ```
 
-2. **Configure Firebase**
-   - Download credentials from Firebase Console
-   - Update `lib/firebase_options.dart`
-   - See [FIREBASE_SETUP.md](FIREBASE_SETUP.md) for detailed instructions
+2. **Configure Supabase**
+   - Create project and get API credentials
+   - Set `SUPABASE_URL` and `SUPABASE_ANON_KEY` in `.env`
+   - See [SUPABASE_SETUP.md](SUPABASE_SETUP.md) for detailed instructions
 
 3. **Configure RevenueCat**
    - Set up products and entitlements
-   - Add API key to firebase_options.dart
+   - Add API key to `.env`
 
 4. **Run the app**
    ```bash
@@ -188,9 +196,13 @@ flutter build ios --release
 # Upload to App Store Connect
 ```
 
-### Firebase
+### Supabase
 ```bash
-firebase deploy --only firestore:rules,storage:rules,functions
+supabase db push
+supabase functions deploy create-user-profile
+supabase functions deploy validate-premium
+supabase functions deploy send-daily-reminder
+supabase functions deploy aggregate-stats
 ```
 
 ## 📈 Features & Roadmap
@@ -216,7 +228,7 @@ firebase deploy --only firestore:rules,storage:rules,functions
 ## 📞 Support
 
 For issues, refer to:
-1. FIREBASE_SETUP.md for Firebase questions
+1. SUPABASE_SETUP.md for backend setup questions
 2. IMPLEMENTATION_GUIDE.md for project structure
 3. Code comments for specific implementations
 

@@ -21,8 +21,13 @@ class ProfileScreen extends ConsumerWidget {
             IconButton(
               icon: const Icon(Icons.logout),
               onPressed: () async {
-                await ref.read(authServiceProvider).signOut();
-                if (context.mounted) Navigator.of(context).pop();
+                final authService = ref.read(authServiceProvider);
+                await authService.signOut();
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Signed out')),
+                  );
+                }
               },
             ),
         ],
@@ -32,7 +37,6 @@ class ProfileScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // User section
             userProfile.when(
               data: (profile) {
                 if (profile == null) {
@@ -44,7 +48,6 @@ class ProfileScreen extends ConsumerWidget {
               error: (error, stack) => Text('Error: $error'),
             ),
             const SizedBox(height: 24),
-            // Progress section
             Text(
               'Your Progress',
               style: Theme.of(context).textTheme.titleLarge,
@@ -61,7 +64,6 @@ class ProfileScreen extends ConsumerWidget {
               error: (error, stack) => const SizedBox.shrink(),
             ),
             const SizedBox(height: 24),
-            // Premium section
             _buildPremiumSection(context, ref),
           ],
         ),
