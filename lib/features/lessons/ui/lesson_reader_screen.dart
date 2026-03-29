@@ -109,7 +109,8 @@ class _LessonReaderScreenState extends ConsumerState<LessonReaderScreen> {
 
     final lessonTitle = lessonIndexAsync.maybeWhen(
       data: (lessons) {
-        final match = lessons.where((l) => _normalizeSlug(l.slug) == normalizedSlug);
+        final match =
+            lessons.where((l) => _normalizeSlug(l.slug) == normalizedSlug);
         if (match.isNotEmpty) return match.first.title;
         return _fallbackTitleFromSlug(widget.slug);
       },
