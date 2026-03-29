@@ -5,6 +5,7 @@ import 'package:fast_menja/core/providers/app_providers.dart';
 import 'package:fast_menja/features/lessons/ui/lesson_list_screen.dart';
 import 'package:fast_menja/features/lessons/ui/lesson_reader_screen.dart';
 import 'package:fast_menja/features/quiz/ui/theory_quiz_screen.dart';
+import 'package:fast_menja/features/quiz/ui/practice_categories_screen.dart';
 import 'package:fast_menja/features/quiz/ui/mock_test_screen.dart';
 import 'package:fast_menja/features/hazard/ui/hazard_perception_screen.dart';
 import 'package:fast_menja/features/auth/ui/login_screen.dart';
@@ -31,56 +32,70 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
-    // Home / Dashboard
-    GoRoute(
-      path: '/',
-      builder: (context, state) => const DashboardScreen(),
-      routes: [
-        // Lessons
-        GoRoute(
-          path: 'lessons',
-          builder: (context, state) => const LessonListScreen(),
-          routes: [
-            GoRoute(
-              path: ':slug',
-              builder: (context, state) => LessonReaderScreen(
-                slug: state.pathParameters['slug']!,
+      // Home / Dashboard
+      GoRoute(
+        path: '/',
+        builder: (context, state) => const DashboardScreen(),
+        routes: [
+          // Lessons
+          GoRoute(
+            path: 'lessons',
+            builder: (context, state) => const LessonListScreen(),
+            routes: [
+              GoRoute(
+                path: 'read',
+                builder: (context, state) {
+                  final slug = state.uri.queryParameters['slug'] ?? '';
+                  return LessonReaderScreen(slug: slug);
+                },
               ),
-            ),
-          ],
-        ),
-        // Theory Mode
-        GoRoute(
-          path: 'theory',
-          builder: (context, state) => const TheoryQuizScreen(),
-        ),
-        // Mock Test
-        GoRoute(
-          path: 'mock-test',
-          builder: (context, state) => const MockTestScreen(),
-        ),
-        // Hazard Perception
-        GoRoute(
-          path: 'hazard',
-          builder: (context, state) => const HazardPerceptionScreen(),
-        ),
-        // Road Signs
-        GoRoute(
-          path: 'signs',
-          builder: (context, state) => const RoadSignsQuizScreen(),
-        ),
-        // Profile
-        GoRoute(
-          path: 'profile',
-          builder: (context, state) => const ProfileScreen(),
-        ),
-      ],
-    ),
-    // Login
-    GoRoute(
-      path: '/login',
-      builder: (context, state) => const LoginScreen(),
-    ),
+              GoRoute(
+                // Allow slugs that contain nested paths, e.g. "section-01-alertness/section".
+                // go_router path params normally stop at '/', so we use a catch-all pattern.
+                path: ':slug(.*)',
+                builder: (context, state) => LessonReaderScreen(
+                  slug: state.pathParameters['slug']!,
+                ),
+              ),
+            ],
+          ),
+          // Theory Mode
+          GoRoute(
+            path: 'theory',
+            builder: (context, state) => const TheoryQuizScreen(),
+          ),
+          // Practice Categories
+          GoRoute(
+            path: 'practice',
+            builder: (context, state) => const PracticeCategoriesScreen(),
+          ),
+          // Mock Test
+          GoRoute(
+            path: 'mock-test',
+            builder: (context, state) => const MockTestScreen(),
+          ),
+          // Hazard Perception
+          GoRoute(
+            path: 'hazard',
+            builder: (context, state) => const HazardPerceptionScreen(),
+          ),
+          // Road Signs
+          GoRoute(
+            path: 'signs',
+            builder: (context, state) => const RoadSignsQuizScreen(),
+          ),
+          // Profile
+          GoRoute(
+            path: 'profile',
+            builder: (context, state) => const ProfileScreen(),
+          ),
+        ],
+      ),
+      // Login
+      GoRoute(
+        path: '/login',
+        builder: (context, state) => const LoginScreen(),
+      ),
     ],
   );
 });

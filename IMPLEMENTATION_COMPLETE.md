@@ -1,299 +1,107 @@
 # Fast Menja Implementation Summary
 
-## ✅ Complete Implementation
+## Current Implementation
 
-Your driving theory test app has been fully implemented based on the system design document. Below is a comprehensive inventory of what's been built.
+Fast Menja is implemented as a Flutter driving theory app with a newer UI architecture centered on Riverpod, GoRouter, Hive, and Supabase-backed user data. The codebase now includes redesigned practice flows, a themed mock exam experience, and a progress-focused profile screen.
 
-## 📦 Files Created
+## Architecture
 
-### Core Application
-- **lib/main.dart** - App entry point with Firebase initialization
-- **lib/firebase_options.dart** - Firebase credentials configuration
-- **.env** - Environment variables template
-- **pubspec.yaml** - All dependencies configured
+### Core Stack
+- Flutter UI with Material 3 styling
+- Riverpod for app state and async data
+- GoRouter for declarative navigation
+- Hive for local question, lesson, and progress storage
+- Supabase for authentication and user profile persistence
+- dotenv for environment configuration
+- Google Fonts for custom typography
 
-### Architecture & Services
+### Core Modules
+- [lib/main.dart](lib/main.dart) - app bootstrap and service initialization
+- [lib/core/navigation/app_router.dart](lib/core/navigation/app_router.dart) - route configuration
+- [lib/core/providers/app_providers.dart](lib/core/providers/app_providers.dart) - providers for auth, lessons, quizzes, and stats
+- [lib/core/services/local_storage_service.dart](lib/core/services/local_storage_service.dart) - bundled content and local persistence
+- [lib/core/services/supabase_service.dart](lib/core/services/supabase_service.dart) - remote profile and quiz sync
+- [lib/features/quiz/data/quiz_repository.dart](lib/features/quiz/data/quiz_repository.dart) - quiz generation and scoring
+- [lib/features/quiz/domain/question_model.dart](lib/features/quiz/domain/question_model.dart) - question, session, weak question, and result models
 
-#### Core Services
-- **lib/core/services/auth_service.dart** - Firebase Authentication (Email, Google, Apple, Anonymous)
-- **lib/core/services/firestore_service.dart** - Cloud Firestore operations and user management
-- **lib/core/services/local_storage_service.dart** - Hive local storage with TypeAdapters
+## Implemented Screens
 
-#### Models
-- **lib/core/models/user_model.dart** - UserProfile and QuizStats models
-- **lib/features/lessons/domain/lesson_model.dart** - LessonMeta and LessonProgress models
-- **lib/features/quiz/domain/question_model.dart** - Question, QuizSession, WeakQuestion, MockTestResult models
+### Lessons
+- [lib/features/lessons/ui/lesson_list_screen.dart](lib/features/lessons/ui/lesson_list_screen.dart)
+- [lib/features/lessons/ui/lesson_reader_screen.dart](lib/features/lessons/ui/lesson_reader_screen.dart)
 
-#### Repositories
-- **lib/features/lessons/data/lesson_repository.dart** - Lesson data access layer
-- **lib/features/quiz/data/quiz_repository.dart** - Quiz and question data access layer
+### Quiz
+- [lib/features/quiz/ui/practice_categories_screen.dart](lib/features/quiz/ui/practice_categories_screen.dart) - category picker for practice mode
+- [lib/features/quiz/ui/theory_quiz_screen.dart](lib/features/quiz/ui/theory_quiz_screen.dart) - redesigned practice question screen
+- [lib/features/quiz/ui/mock_test_screen.dart](lib/features/quiz/ui/mock_test_screen.dart) - redesigned timed mock exam screen
 
-#### State Management (Riverpod)
-- **lib/core/providers/app_providers.dart** - 25+ Riverpod providers for:
-  - Authentication state
-  - Lesson index and progress
-  - Quiz sessions and questions
-  - User profile and premium status
-  - Statistics and weak question tracking
+### Account and Progress
+- [lib/features/profile/ui/profile_screen.dart](lib/features/profile/ui/profile_screen.dart) - progress dashboard with XP, achievements, and settings
+- [lib/features/auth/ui/login_screen.dart](lib/features/auth/ui/login_screen.dart) - sign-in flow
+- [lib/features/hazard/ui/hazard_perception_screen.dart](lib/features/hazard/ui/hazard_perception_screen.dart) - hazard perception entry point
 
-#### Navigation
-- **lib/core/navigation/app_router.dart** - Go Router configuration with 8 main routes
+## What Has Been Built
 
-#### Utilities
-- **lib/core/utils/spaced_repetition.dart** - SM-2 spaced repetition algorithm
-- **lib/core/utils/extensions.dart** - DateTime extensions
+### Learning Content
+- Bundled lessons in Markdown with an index file
+- Bundled question bank in JSON
+- Lesson progress tracking and bookmarking
+- Question categories loaded from the local question bank
 
-### UI Screens
+### Quiz Experience
+- Practice category selection with dynamic question counts
+- Theory quiz with reveal/check flow and conditional question images
+- Mock exam with themed UI, timer pill, and sticky footer actions
+- Weak question tracking and quiz score calculation
+- Session state preserved across category and quiz flows
 
-#### Lesson Module
-- **lib/features/lessons/ui/lesson_list_screen.dart** - Browse lessons by category
-- **lib/features/lessons/ui/lesson_reader_screen.dart** - Read Markdown lessons with progress tracking
+### Progress and Profile
+- Level badge and XP progress display
+- Quick stats for quizzes, accuracy, and streak
+- Achievement grid with locked and unlocked states
+- Settings tiles for profile, notifications, privacy, and support
+- Premium status summary and logout action
 
-#### Quiz Module
-- **lib/features/quiz/ui/theory_quiz_screen.dart** - Theory practice with instant feedback
-- **lib/features/quiz/ui/mock_test_screen.dart** - Official mock test with 57-minute timer
+### Data and Persistence
+- Hive-backed local content loading
+- Supabase-backed user profile retrieval
+- Offline-first local progress tracking
+- Weak question review support
 
-#### Authentication & Account
-- **lib/features/auth/ui/login_screen.dart** - Sign in with multiple methods
-- **lib/features/profile/ui/profile_screen.dart** - User profile and statistics
+## Recent UI Redesign Work
 
-#### Other
-- **lib/features/hazard/ui/hazard_perception_screen.dart** - Hazard perception placeholder
+- Practice categories screen added and wired into dashboard navigation
+- Theory quiz screen redesigned to match the new mobile theme
+- Top progress bar removed from question view
+- Question image area now only appears when a question has an image asset
+- Mock exam screen redesigned to match the same theme as practice
+- Profile/progress screen redesigned into a more complete dashboard-style view
 
-### Content Assets
+## Route Coverage
 
-#### Lessons
-- **assets/lessons/01-road-signs-warning.md** - Warning signs lesson
-- **assets/lessons/02-road-signs-info.md** - Information signs lesson
-- **assets/lessons/03-motorway-rules.md** - Motorway rules lesson
+The app currently exposes routes for:
+- Dashboard
+- Lessons
+- Practice categories
+- Theory quiz
+- Mock exam
+- Hazard perception
+- Profile
+- Login
 
-#### Content Indexes
-- **assets/lessons_index.json** - Metadata for all lessons
-- **assets/questions.json** - 10 sample questions covering Road Signs and Motorway Driving
+## Content Snapshot
 
-### Backend Infrastructure
+- Sample lessons: 3
+- Sample questions: 10
+- Categories currently in the bundled question bank: Road signs, Motorway driving
 
-#### Firebase
-- **firestore.rules** - Security rules for Firestore collections
-- **storage.rules** - Security rules for Firebase Storage
-- **firebase.json** - Firebase project configuration
-- **functions/index.js** - Cloud Functions for:
-  - User creation
-  - Daily reminders
-  - Premium validation
-  - Statistics aggregation
+## Status
 
-### Documentation
+Status: implemented and ready for further content expansion and backend hardening.
 
-- **README.md** - Main project README with quick start
-- **IMPLEMENTATION_GUIDE.md** - Comprehensive implementation details (70+ sections)
-- **FIREBASE_SETUP.md** - Step-by-step Firebase and RevenueCat setup guide
+## Recommended Next Work
 
-## 🎯 What's Implemented
-
-### 1. Architecture (✅ Complete)
-- [x] Clean Architecture with Repository pattern
-- [x] Riverpod state management with 25+ providers
-- [x] Go Router for declarative navigation
-- [x] Proper separation of concerns (UI, Domain, Data)
-- [x] Dependency injection via Riverpod
-
-### 2. Features (✅ Complete)
-
-#### Lessons
-- [x] Markdown-based lessons bundled with app
-- [x] YAML frontmatter for metadata
-- [x] Progress tracking (completed, bookmarked)
-- [x] Reading time estimates
-- [x] Category grouping
-
-#### Quiz Engine
-- [x] Theory practice mode (unlimited free)
-- [x] Mock tests (50 questions, 57 minutes, 43/50 pass mark)
-- [x] Road signs quiz
-- [x] Spaced repetition algorithm
-- [x] Instant feedback with explanations
-- [x] Question explanations
-- [x] Score calculation
-
-#### Authentication
-- [x] Email/password
-- [x] Google Sign-In
-- [x] Apple Sign-In
-- [x] Guest mode
-- [x] Anonymous auth
-- [x] Guest-to-account migration
-
-#### Offline-First
-- [x] Hive local storage
-- [x] Bundled lessons and questions
-- [x] Offline progress tracking
-- [x] Automatic sync when online
-- [x] Firestore offline persistence
-
-#### Premium Monetization
-- [x] RevenueCat integration foundation
-- [x] Freemium feature gating
-- [x] Premium status tracking
-- [x] Subscription support
-
-### 3. Backend Services (✅ Complete)
-- [x] Firebase Authentication
-- [x] Cloud Firestore with security rules
-- [x] Firebase Cloud Functions
-- [x] Cloud Messaging setup
-- [x] Remote Config ready
-- [x] Firebase Storage rules
-
-### 4. Data Persistence (✅ Complete)
-- [x] Firestore schema design
-- [x] Hive local storage
-- [x] Progress synchronization
-- [x] User account data
-- [x] Quiz statistics
-- [x] Weak question tracking
-
-### 5. Content Pipeline (✅ Complete)
-- [x] Markdown lesson format
-- [x] YAML frontmatter parsing
-- [x] Question bank JSON
-- [x] Lessons index
-- [x] Easy content updates via Remote Config
-
-### 6. Security (✅ Complete)
-- [x] Firestore security rules
-- [x] Storage security rules
-- [x] API key management
-- [x] Anonymous auth isolation
-- [x] User-scoped data access
-
-### 7. Documentation (✅ Complete)
-- [x] README with quick start
-- [x] Implementation guide
-- [x] Firebase setup guide
-- [x] Architecture documentation
-- [x] API reference
-
-## 📊 Statistics
-
-| Metric | Count |
-|--------|-------|
-| **Dart Files** | 30+ |
-| **UI Screens** | 8 |
-| **Services** | 3 |
-| **Riverpod Providers** | 25+ |
-| **Models** | 8 |
-| **Repositories** | 2 |
-| **Sample Lessons** | 3 |
-| **Sample Questions** | 10 |
-| **Total LOC** | ~4,000+ |
-
-## 🚀 Ready to Deploy
-
-### Before Going Live
-
-1. **Firebase Setup** (See FIREBASE_SETUP.md)
-   - [ ] Create Firebase project
-   - [ ] Configure Authentication methods
-   - [ ] Deploy Firestore rules
-   - [ ] Deploy Storage rules
-   - [ ] Deploy Cloud Functions
-   - [ ] Set up RevenueCat integration
-
-2. **Content Expansion**
-   - [ ] Add 500+ questions to assets/questions.json
-   - [ ] Add 20+ Markdown lessons to assets/lessons/
-   - [ ] Update assets/lessons_index.json
-   - [ ] Test all content locally
-
-3. **App Configuration**
-   - [ ] Update firebase_options.dart with real credentials
-   - [ ] Configure RevenueCat API keys
-   - [ ] Set app name and icon
-   - [ ] Configure bundle identifiers
-
-4. **Testing**
-   - [ ] Test authentication flows
-   - [ ] Test offline functionality
-   - [ ] Test sync when online
-   - [ ] Test quiz engine
-   - [ ] Test RemoteConfig updates
-
-5. **Deployment**
-   - [ ] Build release APK/AAB (Android)
-   - [ ] Build release IPA (iOS)
-   - [ ] Submit to Google Play
-   - [ ] Submit to App Store
-
-## 💡 Next Steps
-
-1. **Configure Firebase**
-   - Follow [FIREBASE_SETUP.md](FIREBASE_SETUP.md)
-   - Get API keys and credentials
-   - Deploy backend infrastructure
-
-2. **Add Content**
-   - Create comprehensive question bank
-   - Add more lessons
-   - Test content loading
-
-3. **Test Locally**
-   ```bash
-   flutter pub get
-   flutter pub run build_runner build
-   flutter run
-   ```
-
-4. **Build for Stores**
-   - See IMPLEMENTATION_GUIDE.md deployment section
-   - Configure signing certificates
-   - Submit apps
-
-## 📚 Key Files to Review
-
-- **IMPLEMENTATION_GUIDE.md** - Full implementation details, 70+ sections
-- **FIREBASE_SETUP.md** - Complete Firebase configuration guide
-- **lib/core/providers/app_providers.dart** - State management architecture
-- **lib/features/quiz/data/quiz_repository.dart** - Quiz engine logic
-- **lib/core/services/local_storage_service.dart** - Offline storage strategy
-
-## 🎓 Learning Resources
-
-The implementation demonstrates:
-- Modern Flutter architecture patterns
-- Riverpod state management best practices
-- Firebase integration
-- Offline-first design
-- Spaced repetition algorithms
-- Repository pattern
-- Clean architecture
-
-## ⚡ Performance Features
-
-- Lazy loading of lessons
-- Hive caching for fast access
-- Efficient question shuffle
-- Local-first sync
-- Minimal Firebase quota usage
-- Offline persistence enabled
-
-## 🔒 Security Features
-
-- User-scoped Firestore access
-- Anonymous auth isolation
-- Encrypted local storage
-- API key isolation
-- RevenueCat webhook validation
-- Storage rules enforcement
-
----
-
-**Status:** ✅ COMPLETE AND READY FOR DEVELOPMENT
-
-Your system is fully implemented and ready to be extended with:
-- More content (lessons and questions)
-- Real Firebase credentials
-- App store submission
-- Additional features
-
-Start with FIREBASE_SETUP.md to configure your backend! 🚀
+1. Expand the question bank and lesson library
+2. Persist profile settings such as notification preferences
+3. Add real achievement rules and richer streak calculations
+4. Continue polishing the remaining screens for consistency

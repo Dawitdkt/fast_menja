@@ -8,6 +8,17 @@ class LessonRepository {
 
   LessonRepository(this._storage);
 
+  String _normalizeSlug(String slug) {
+    // Defensive normalization: route params or stored values can occasionally
+    // include surrounding whitespace or backslashes on Windows.
+    final trimmed = slug.trim();
+    final withForwardSlashes = trimmed.replaceAll('\\', '/');
+    final noLeadingSlashes =
+        withForwardSlashes.replaceFirst(RegExp(r'^/+'), '');
+    final collapsed = noLeadingSlashes.replaceAll(RegExp(r'/+'), '/');
+    return collapsed;
+  }
+
   /// Load all lessons metadata from assets
   Future<List<LessonMeta>> loadLessonIndex() async {
     try {
@@ -28,7 +39,8 @@ class LessonRepository {
   /// Load lesson markdown by slug
   Future<String> loadMarkdown(String slug) async {
     try {
-      return await rootBundle.loadString('assets/lessons/$slug.md');
+      final normalized = _normalizeSlug(slug);
+      return await rootBundle.loadString('assets/lessons/$normalized.md');
     } catch (e) {
       rethrow;
     }

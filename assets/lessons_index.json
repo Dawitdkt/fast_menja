@@ -1,28 +1,100 @@
 {
   "lessons": [
     {
-      "slug": "road-signs-warning",
-      "title": "Warning signs",
-      "category": "Road signs",
+      "slug": "section-01-alertness/section",
+      "title": "Alertness",
+      "category": "Theory Test Sections",
       "order": 1,
-      "readingTimeMinutes": 5,
-      "tags": ["signs", "hazards", "triangles"]
+      "readingTimeMinutes": 2,
+      "tags": ["theory", "alertness"]
     },
     {
-      "slug": "road-signs-info",
-      "title": "Information signs",
-      "category": "Road signs",
+      "slug": "section-02-attitude/section",
+      "title": "Attitude",
+      "category": "Theory Test Sections",
       "order": 2,
       "readingTimeMinutes": 4,
-      "tags": ["signs", "information", "blue", "rectangular"]
+      "tags": ["theory", "attitude"]
     },
     {
-      "slug": "motorway-rules",
-      "title": "Motorway rules and procedures",
-      "category": "Motorway driving",
+      "slug": "section-03-safety-and-your-vehicle/section",
+      "title": "Safety and your vehicle",
+      "category": "Theory Test Sections",
       "order": 3,
-      "readingTimeMinutes": 8,
-      "tags": ["motorway", "safety", "speed", "lanes"]
+      "readingTimeMinutes": 2,
+      "tags": ["theory", "safety", "vehicle"]
+    },
+    {
+      "slug": "section-04-safety-margins/section",
+      "title": "Safety margins",
+      "category": "Theory Test Sections",
+      "order": 4,
+      "readingTimeMinutes": 5,
+      "tags": ["theory", "safety", "margins"]
+    },
+    {
+      "slug": "section-05-hazard-awareness/section",
+      "title": "Hazard awareness",
+      "category": "Theory Test Sections",
+      "order": 5,
+      "readingTimeMinutes": 10,
+      "tags": ["theory", "hazard", "awareness"]
+    },
+    {
+      "slug": "section-06-vulnerable-road-users/section",
+      "title": "Vulnerable road users",
+      "category": "Theory Test Sections",
+      "order": 6,
+      "readingTimeMinutes": 6,
+      "tags": ["theory", "vulnerable", "road", "users"]
+    },
+    {
+      "slug": "section-07-other-types-of-vehicle/section",
+      "title": "Other types of vehicle",
+      "category": "Theory Test Sections",
+      "order": 7,
+      "readingTimeMinutes": 3,
+      "tags": ["theory", "other", "types", "vehicle"]
+    },
+    {
+      "slug": "section-08-vehicle-handling/section",
+      "title": "Vehicle handling",
+      "category": "Theory Test Sections",
+      "order": 8,
+      "readingTimeMinutes": 4,
+      "tags": ["theory", "vehicle", "handling"]
+    },
+    {
+      "slug": "section-09-motorway-rules/section",
+      "title": "Motorway rules",
+      "category": "Theory Test Sections",
+      "order": 9,
+      "readingTimeMinutes": 10,
+      "tags": ["theory", "motorway", "rules"]
+    },
+    {
+      "slug": "section-11-road-and-traffic-signs/section",
+      "title": "Road and traffic signs",
+      "category": "Theory Test Sections",
+      "order": 11,
+      "readingTimeMinutes": 3,
+      "tags": ["theory", "road", "traffic", "signs"]
+    },
+    {
+      "slug": "section-12-documents/section",
+      "title": "Documents",
+      "category": "Theory Test Sections",
+      "order": 12,
+      "readingTimeMinutes": 4,
+      "tags": ["theory", "documents"]
+    },
+    {
+      "slug": "section-13-accidents/section",
+      "title": "Accidents",
+      "category": "Theory Test Sections",
+      "order": 13,
+      "readingTimeMinutes": 5,
+      "tags": ["theory", "accidents"]
     }
   ]
 }

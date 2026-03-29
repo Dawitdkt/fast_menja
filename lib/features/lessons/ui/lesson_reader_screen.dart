@@ -19,6 +19,44 @@ class _LessonReaderScreenState extends ConsumerState<LessonReaderScreen> {
   final ScrollController _controller = ScrollController();
   bool _completionTriggered = false;
 
+  String _normalizeSlug(String slug) {
+    return slug.trim().replaceAll('\\', '/');
+  }
+
+  String _fallbackTitleFromSlug(String slug) {
+    final normalized = _normalizeSlug(slug);
+    if (normalized.isEmpty) return 'Lesson';
+
+    final parts = normalized.split('/');
+    final sectionPart = parts.isNotEmpty ? parts.first : normalized;
+
+    final cleaned = sectionPart
+        .replaceFirst(RegExp(r'^section-\d+-'), '')
+        .replaceAll('-', ' ')
+        .trim();
+
+    if (cleaned.isEmpty) return 'Lesson';
+    return cleaned[0].toUpperCase() + cleaned.substring(1);
+  }
+
+  String _resolveLessonAssetImagePath(Uri uri) {
+    // For markdown like: ![Image](tr-image-003.png)
+    // and slug like: section-04-safety-margins/section
+    // resolve to: assets/lessons/section-04-safety-margins/tr-image-003.png
+    final raw = uri.toString();
+    if (raw.isEmpty) return '';
+
+    final slug = widget.slug.trim().replaceAll('\\', '/');
+    final lastSlash = slug.lastIndexOf('/');
+    final lessonDir = lastSlash == -1 ? '' : slug.substring(0, lastSlash);
+
+    final normalized = raw.replaceAll('\\', '/');
+    if (lessonDir.isEmpty) {
+      return 'assets/lessons/$normalized';
+    }
+    return 'assets/lessons/$lessonDir/$normalized';
+  }
+
   @override
   void initState() {
     super.initState();
@@ -64,8 +102,19 @@ class _LessonReaderScreenState extends ConsumerState<LessonReaderScreen> {
   @override
   Widget build(BuildContext context) {
     final markdownAsync = ref.watch(lessonBySlugProvider(widget.slug));
+    final lessonIndexAsync = ref.watch(lessonIndexProvider);
     final progress = ref.watch(lessonProgressProvider);
     final lessonProgress = progress[widget.slug];
+    final normalizedSlug = _normalizeSlug(widget.slug);
+
+    final lessonTitle = lessonIndexAsync.maybeWhen(
+      data: (lessons) {
+        final match = lessons.where((l) => _normalizeSlug(l.slug) == normalizedSlug);
+        if (match.isNotEmpty) return match.first.title;
+        return _fallbackTitleFromSlug(widget.slug);
+      },
+      orElse: () => _fallbackTitleFromSlug(widget.slug),
+    );
 
     if ((lessonProgress?.completed ?? false) && !_completionTriggered) {
       _completionTriggered = true;
@@ -73,7 +122,11 @@ class _LessonReaderScreenState extends ConsumerState<LessonReaderScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Lesson'),
+        title: Text(
+          lessonTitle,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
         actions: [
           IconButton(
             icon: Icon(
@@ -96,6 +149,24 @@ class _LessonReaderScreenState extends ConsumerState<LessonReaderScreen> {
           padding: const EdgeInsets.all(16),
           child: MarkdownBody(
             data: markdown,
+            imageBuilder: (uri, title, alt) {
+              // If the markdown image is a web URL, let flutter_markdown handle it.
+              if (uri.hasScheme) {
+                return Image.network(
+                  uri.toString(),
+                  errorBuilder: (context, error, stackTrace) =>
+                      const SizedBox(),
+                );
+              }
+
+              final assetPath = _resolveLessonAssetImagePath(uri);
+              if (assetPath.isEmpty) return const SizedBox();
+
+              return Image.asset(
+                assetPath,
+                errorBuilder: (context, error, stackTrace) => const SizedBox(),
+              );
+            },
             styleSheet: MarkdownStyleSheet(
               h2: const TextStyle(
                 fontSize: 20,

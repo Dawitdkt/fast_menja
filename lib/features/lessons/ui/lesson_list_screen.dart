@@ -19,6 +19,11 @@ class LessonListScreen extends ConsumerStatefulWidget {
 class _LessonListScreenState extends ConsumerState<LessonListScreen> {
   String _query = '';
 
+  void _openLesson(BuildContext context, String slug) {
+    final encoded = Uri.encodeQueryComponent(slug);
+    context.go('/lessons/read?slug=$encoded');
+  }
+
   @override
   Widget build(BuildContext context) {
     final lessonsAsync = ref.watch(lessonIndexProvider);
@@ -33,7 +38,7 @@ class _LessonListScreenState extends ConsumerState<LessonListScreen> {
           data: (lessons) {
             final filtered = _filterLessons(lessons, _query);
             final grouped = _groupByCategory(filtered);
-            final feature = filtered.isNotEmpty ? filtered.first : null;
+            final feature = _pickRecommendedLesson(filtered, progress);
 
             return RefreshIndicator(
               onRefresh: () async {
@@ -68,7 +73,7 @@ class _LessonListScreenState extends ConsumerState<LessonListScreen> {
                         child: _FeaturedCard(
                           lesson: feature,
                           progress: progress[feature.slug],
-                          onTap: () => context.go('/lessons/${feature.slug}'),
+                          onTap: () => _openLesson(context, feature.slug),
                         ),
                       ),
                     ),
@@ -77,7 +82,7 @@ class _LessonListScreenState extends ConsumerState<LessonListScreen> {
                     sliver: _CategoryList(
                       grouped: grouped,
                       progress: progress,
-                      onTapLesson: (slug) => context.go('/lessons/$slug'),
+                      onTapLesson: (slug) => _openLesson(context, slug),
                     ),
                   ),
                 ],
@@ -106,6 +111,22 @@ class _LessonListScreenState extends ConsumerState<LessonListScreen> {
       map.putIfAbsent(lesson.category, () => []).add(lesson);
     }
     return map;
+  }
+
+  LessonMeta? _pickRecommendedLesson(
+    List<LessonMeta> lessons,
+    Map<String, LessonProgress> progress,
+  ) {
+    if (lessons.isEmpty) return null;
+
+    final sorted = [...lessons]..sort((a, b) => a.order.compareTo(b.order));
+
+    for (final lesson in sorted) {
+      final isCompleted = progress[lesson.slug]?.completed ?? false;
+      if (!isCompleted) return lesson;
+    }
+
+    return sorted.first;
   }
 }
 
@@ -227,14 +248,14 @@ class _FeaturedCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              lesson.category,
+              lesson.title,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.w800,
                   ),
             ),
             const SizedBox(height: 6),
             Text(
-              lesson.title,
+              '${lesson.readingTimeMinutes} min read',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: const Color(0xFF424754),
                     height: 1.4,
@@ -317,34 +338,29 @@ class _CategoryList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final entries = grouped.entries.toList()
-      ..sort((a, b) => a.key.compareTo(b.key));
+    final lessons = grouped.values.expand((list) => list).toList()
+      ..sort((a, b) => a.order.compareTo(b.order));
 
     return SliverList(
       delegate: SliverChildBuilderDelegate(
         (context, index) {
-          final entry = entries[index];
-          final completed = entry.value
-              .where((l) => progress[l.slug]?.completed ?? false)
-              .length;
-          final percent = entry.value.isEmpty
-              ? 0
-              : (completed / entry.value.length * 100).round();
-          final primaryLesson = entry.value.first;
+          final lesson = lessons[index];
+          final isCompleted = progress[lesson.slug]?.completed ?? false;
+          final percent = isCompleted ? 100 : 0;
 
           return Padding(
             padding:
-                EdgeInsets.only(bottom: index == entries.length - 1 ? 0 : 12),
+                EdgeInsets.only(bottom: index == lessons.length - 1 ? 0 : 12),
             child: _CategoryListTile(
-              title: entry.key,
-              subtitle: primaryLesson.title,
+              title: lesson.title,
+              subtitle: '${lesson.readingTimeMinutes} min read',
               percent: percent,
               accent: _pickColor(index),
-              onTap: () => onTapLesson(primaryLesson.slug),
+              onTap: () => onTapLesson(lesson.slug),
             ),
           );
         },
-        childCount: entries.length,
+        childCount: lessons.length,
       ),
     );
   }

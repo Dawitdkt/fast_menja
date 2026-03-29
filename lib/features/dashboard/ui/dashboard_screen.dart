@@ -394,7 +394,7 @@ class _ModulesSection extends StatelessWidget {
               iconColor: const Color(0xFF10B981),
               progressLabel: '$practicePercent%',
               progressValue: practicePercent / 100,
-              onTap: () => context.go('/theory'),
+              onTap: () => context.go('/practice'),
             ),
             _ModuleCard(
               title: 'Mock exam',

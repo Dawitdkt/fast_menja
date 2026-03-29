@@ -1,11 +1,11 @@
 name: fast_menja
 description: Driving theory test 4-in-1 mobile app for learner drivers
-publish_to: 'none'
+publish_to: "none"
 
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
   flutter:
@@ -62,6 +62,18 @@ flutter:
 
   assets:
     - assets/lessons/
+    - assets/lessons/section-01-alertness/
+    - assets/lessons/section-02-attitude/
+    - assets/lessons/section-03-safety-and-your-vehicle/
+    - assets/lessons/section-04-safety-margins/
+    - assets/lessons/section-05-hazard-awareness/
+    - assets/lessons/section-06-vulnerable-road-users/
+    - assets/lessons/section-07-other-types-of-vehicle/
+    - assets/lessons/section-08-vehicle-handling/
+    - assets/lessons/section-09-motorway-rules/
+    - assets/lessons/section-11-road-and-traffic-signs/
+    - assets/lessons/section-12-documents/
+    - assets/lessons/section-13-accidents/
     - assets/questions.json
     - assets/lessons_index.json
     - .env
